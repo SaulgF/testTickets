@@ -1,9 +1,13 @@
 <script setup>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, usePage } from "@inertiajs/vue3";
-import { computed } from "vue";
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { Head, usePage } from '@inertiajs/vue3'
+import { computed } from 'vue'
 
-const user = computed(() => usePage().props.auth.user);
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+
+const user = computed(() => usePage().props.auth.user)
 </script>
 
 <template>
@@ -11,45 +15,70 @@ const user = computed(() => usePage().props.auth.user);
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="text-xl font-semibold">
                 Dashboard
             </h2>
         </template>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <!-- Welcome Card -->
-                <div
-                    class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6"
-                >
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2">
-                        Panel Administrativo de Tickets y Reportes Técnicos
-                    </h3>
+        <div class="py-10 max-w-7xl mx-auto space-y-6">
 
-                    <p class="text-gray-600">
-                        Aquí puedes visualizar y administrar todos los tickets
-                        del sistema.
+            <!-- Welcome Card -->
+            <Card>
+                <CardHeader>
+                    <CardTitle>
+                       Administrador de Tickets - Bienvenido
+                    </CardTitle>
+                </CardHeader>
+
+                <CardContent class="space-y-4">
+                    <p class="text-muted-foreground">
+                        Aqui puedes gestionar todos los tickets, ver el estado de todas las solicitudes y crear nuevos tickets para soporte o consultas.
                     </p>
-                </div>
 
-                <!-- Stats Section (Placeholder) -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                    <div class="bg-white shadow-sm rounded-lg p-6">
-                        <p class="text-sm text-gray-500">Tickets Abiertos</p>
-                        <p class="text-2xl font-bold text-blue-600">0</p>
-                    </div>
+                    <Badge variant="secondary">
+                        Rol: Administrador
+                    </Badge>
 
-                    <div class="bg-white shadow-sm rounded-lg p-6">
-                        <p class="text-sm text-gray-500">Tickets Cerrados</p>
-                        <p class="text-2xl font-bold text-green-600">0</p>
+                    <div>
+                        <Button>
+                            Crear Nuevo Ticket
+                        </Button>
                     </div>
+                </CardContent>
+            </Card>
 
-                    <div class="bg-white shadow-sm rounded-lg p-6">
-                        <p class="text-sm text-gray-500">Prioridad Alta</p>
-                        <p class="text-2xl font-bold text-red-600">0</p>
-                    </div>
-                </div>
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Tickets Abiertos</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="text-3xl font-bold">0</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Tickets Cerrados</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="text-3xl font-bold">0</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Alta Prioridad</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="text-3xl font-bold">0</p>
+                    </CardContent>
+                </Card>
+
             </div>
+
         </div>
     </AuthenticatedLayout>
 </template>
