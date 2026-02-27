@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreTicketRequest;
 
 class TicketController extends Controller
@@ -36,7 +35,7 @@ class TicketController extends Controller
                 ->store('tickets', 'public');
         }
 
-        Ticket::create([
+        $ticket = Ticket::create([
             'user_id' => auth()->id(),
             'title' => $request->title,
             'description' => $request->description,
@@ -45,7 +44,6 @@ class TicketController extends Controller
             'image_path' => $imagePath,
         ]);
 
-        return redirect()->route('tickets.index')
-            ->with('success', 'Ticket creado correctamente.');
+        return back()->with('success', true);
     }
 }
