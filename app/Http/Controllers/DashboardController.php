@@ -2,20 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Ticket;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $user = Auth::user();
+        $user = auth()->user();
 
-        if ($user->isAdmin()) {
-            return redirect()->route('admin.dashboard');
+        $query = Ticket::with('user')->latest();
+
+        if (!$user->isAdmin()) {
+            $query->where('user_id', $user->id);
         }
 
-        return redirect()->route('user.dashboard');
+        if ($request->status && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $tickets = $query->get();
+
+        return Inertia::render(
+            $user->isAdmin() ? 'Admin/Dashboard' : 'User/Dashboard',
+            [
+                'tickets' => $tickets,
+                'filters' => [
+                    'status' => $request->status ?? 'all'
+                ]
+            ]
+        );
     }
 }

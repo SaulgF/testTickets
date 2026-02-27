@@ -5,18 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Ticket;
 use Inertia\Inertia;
 use App\Http\Requests\StoreTicketRequest;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TicketController extends Controller
 {
+    use AuthorizesRequests;
     public function index()
     {
         $user = auth()->user();
 
-        $tickets = $user->isAdmin()
-            ? Ticket::with('user')->latest()->get()
-            : $user->tickets()->latest()->get();
+        $query = Ticket::with('user')->latest();
 
-        return Inertia::render('Tickets/Index', [
+        if (!$user->isAdmin()) {
+            $query->where('user_id', $user->id);
+        }
+
+        $tickets = $query->get();
+
+        return Inertia::render('User/Dashboard', [
             'tickets' => $tickets
         ]);
     }
@@ -42,6 +48,17 @@ class TicketController extends Controller
             'priority' => $request->priority,
             'status' => 'open',
             'image_path' => $imagePath,
+        ]);
+
+        return back()->with('success', true);
+    }
+
+    public function close(Ticket $ticket)
+    {
+        $this->authorize('update', $ticket);
+
+        $ticket->update([
+            'status' => 'closed'
         ]);
 
         return back()->with('success', true);

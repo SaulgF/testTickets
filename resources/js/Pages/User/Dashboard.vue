@@ -24,6 +24,13 @@ const triggerToast = () => {
   }, 3000)
 }
 
+const props = defineProps({
+  tickets: {
+    type: Array,
+    default: () => [],
+  },
+})
+
 const showDialog = ref(false)
 
 const form = useForm({
@@ -85,9 +92,58 @@ const submit = () => {
           <CardTitle>Mis Tickets</CardTitle>
         </CardHeader>
         <Separator />
-        <CardContent class="pt-6 text-slate-500">
-          Aquí aparecerán tus tickets.
-        </CardContent>
+        <CardContent class="pt-6">
+            <div v-if="!props.tickets.length" class="text-slate-500">
+                No tienes tickets aún.
+            </div>
+
+            <div v-else class="grid gap-4">
+                <div
+                v-for="ticket in props.tickets"
+                :key="ticket.id"
+                class="border rounded-lg p-4 bg-white shadow-sm"
+                >
+                <div class="flex justify-between items-start">
+                    <div>
+                    <h3 class="font-semibold text-lg">
+                        {{ ticket.title }}
+                    </h3>
+
+                    <p class="text-sm text-slate-500 mt-1">
+                        {{ ticket.description }}
+                    </p>
+                    </div>
+
+                    <div class="flex flex-col items-end gap-2">
+                    <span
+                        class="px-2 py-1 text-xs rounded-full"
+                        :class="{
+                        'bg-green-100 text-green-700': ticket.priority === 'low',
+                        'bg-yellow-100 text-yellow-700': ticket.priority === 'medium',
+                        'bg-red-100 text-red-700': ticket.priority === 'high',
+                        }">
+                        {{ ticket.priority }}
+                    </span>
+
+                    <span
+                        class="px-2 py-1 text-xs rounded-full"
+                        :class="{
+                        'bg-blue-100 text-blue-700': ticket.status === 'open',
+                        'bg-gray-200 text-gray-700': ticket.status === 'closed',
+                        }">
+                        {{ ticket.status }}
+                    </span>
+                    </div>
+                </div>
+
+                <div v-if="ticket.image_path" class="mt-3">
+                    <img
+                    :src="`/storage/${ticket.image_path}`"
+                    class="w-32 h-20 object-cover rounded-md border"/>
+                </div>
+                </div>
+            </div>
+            </CardContent>
       </Card>
     </div>
 

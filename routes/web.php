@@ -14,15 +14,9 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->middleware(['auth'])
         ->name('dashboard');
 
-    Route::get('/user/dashboard', function () {
-        return Inertia::render('User/Dashboard');
-    })->name('user.dashboard');
-
-    Route::get('/admin/dashboard', function () {
-        return Inertia::render('Admin/Dashboard');
-    })->name('admin.dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -44,6 +38,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/tickets', [TicketController::class, 'store'])
         ->name('tickets.store');
+
+    Route::patch('/tickets/{ticket}/close', [TicketController::class, 'close'])
+        ->name('tickets.close');
 });
 
 require __DIR__ . '/auth.php';
