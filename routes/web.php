@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TicketController;
+
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -36,6 +38,15 @@ Route::middleware('auth')->group(function () {
             return Inertia::render('Admin/Dashboard');
         })->name('admin.dashboard');
     });
+
+    Route::get('/tickets', [TicketController::class, 'index'])
+        ->name('tickets.index');
+
+    Route::get('/tickets/create', [TicketController::class, 'create'])
+        ->name('tickets.create');
+
+    Route::post('/tickets', [TicketController::class, 'store'])
+        ->name('tickets.store');
 });
 
 require __DIR__ . '/auth.php';
