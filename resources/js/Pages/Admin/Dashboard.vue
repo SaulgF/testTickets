@@ -235,6 +235,9 @@ const previewImage = (path) => {
                         <p class="text-sm text-slate-500 mt-1 line-clamp-2">
                             {{ ticket.description }}
                         </p>
+                        <small class="text-xs text-slate-400 mt-1">
+                            {{ ticket.user.name }}
+                        </small>
                         </div>
 
                         <!-- Badges -->

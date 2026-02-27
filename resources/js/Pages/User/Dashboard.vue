@@ -1,18 +1,34 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import { Head, useForm, usePage } from '@inertiajs/vue3'
-import { ref, watch } from 'vue'
+import { Head, useForm, usePage, router } from '@inertiajs/vue3'
+import { ref, computed, watch } from 'vue'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/composables/useToast'
 
+
+
+const showConfirmDialog = ref(false)
+const selectedTicketId = ref(null)
+
 const page = usePage()
+
+const props = defineProps({
+  tickets: {
+    type: Array,
+    default: () => [],
+  },
+})
+
+const statusFilter = ref(page.props.filters?.status || 'all')
+
 const { toast } = useToast()
 const showToast = ref(false)
 
@@ -24,12 +40,32 @@ const triggerToast = () => {
   }, 3000)
 }
 
-const props = defineProps({
-  tickets: {
-    type: Array,
-    default: () => [],
-  },
-})
+const applyFilter = (status) => {
+  statusFilter.value = status
+
+  router.get(
+    route('dashboard'),
+    { status },
+    {
+      preserveState: true,
+      replace: true,
+    }
+  )
+}
+
+const totalCount = computed(() => props.tickets.length)
+
+const openCount = computed(() =>
+  props.tickets.filter(t => t.status === 'open').length
+)
+
+const closedCount = computed(() =>
+  props.tickets.filter(t => t.status === 'closed').length
+)
+
+const highPriorityCount = computed(() =>
+  props.tickets.filter(t => t.priority === 'high').length
+)
 
 const showDialog = ref(false)
 
@@ -68,6 +104,35 @@ const submit = () => {
     }
   })
 }
+
+const confirmClose = (id) => {
+  selectedTicketId.value = id
+  showConfirmDialog.value = true
+}
+
+const executeClose = () => {
+  router.patch(route('tickets.close', selectedTicketId.value), {}, {
+    preserveScroll: true,
+    onSuccess: () => {
+      showConfirmDialog.value = false
+      selectedTicketId.value = null
+
+      toast({
+        type: 'success',
+        title: 'Ticket cerrado',
+        message: 'El ticket fue cerrado correctamente.',
+      })
+    }
+  })
+}
+
+const showImagePreview = ref(false)
+const selectedImage = ref(null)
+
+const previewImage = (path) => {
+  selectedImage.value = `/storage/${path}`
+  showImagePreview.value = true
+}
 </script>
 
 <template>
@@ -85,7 +150,41 @@ const submit = () => {
         </Button>
       </div>
     </template>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 py-4">
 
+        <!-- Total -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+            <p class="text-xs text-slate-500 uppercase">Total</p>
+            <p class="text-2xl font-bold text-slate-800 mt-1">
+            {{ totalCount }}
+            </p>
+        </div>
+
+        <!-- Abiertos -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 shadow-sm">
+            <p class="text-xs text-blue-600 uppercase">Abiertos</p>
+            <p class="text-2xl font-bold text-blue-700 mt-1">
+            {{ openCount }}
+            </p>
+        </div>
+
+        <!-- Cerrados -->
+        <div class="bg-gray-100 border border-gray-300 rounded-xl p-4 shadow-sm">
+            <p class="text-xs text-gray-600 uppercase">Cerrados</p>
+            <p class="text-2xl font-bold text-gray-800 mt-1">
+            {{ closedCount }}
+            </p>
+        </div>
+
+        <!-- Alta prioridad -->
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
+            <p class="text-xs text-red-600 uppercase">Alta prioridad</p>
+            <p class="text-2xl font-bold text-red-700 mt-1">
+            {{ highPriorityCount }}
+            </p>
+        </div>
+
+    </div>
     <div class="py-10 max-w-6xl mx-auto px-4">
       <Card>
         <CardHeader>
@@ -93,56 +192,115 @@ const submit = () => {
         </CardHeader>
         <Separator />
         <CardContent class="pt-6">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex gap-3">
+                    <Button
+                    size="sm"
+                    :variant="statusFilter === 'all' ? 'default' : 'outline'"
+                    @click="applyFilter('all')">
+                    Todos ({{ props.tickets.length }})
+                    </Button>
+
+                    <Button
+                    size="sm"
+                    :variant="statusFilter === 'open' ? 'default' : 'outline'"
+                     @click="applyFilter('open')">
+                    Abiertos ({{ openCount }})
+                    </Button>
+
+                    <Button
+                    size="sm"
+                    :variant="statusFilter === 'closed' ? 'default' : 'outline'"
+                    @click="applyFilter('closed')">
+                    Cerrados ({{ closedCount }})
+                    </Button>
+                </div>
+
+                </div>
             <div v-if="!props.tickets.length" class="text-slate-500">
                 No tienes tickets aún.
             </div>
-
-            <div v-else class="grid gap-4">
+            <transition-group name="fade-slide" tag="div" class="grid gap-4">
                 <div
-                v-for="ticket in props.tickets"
-                :key="ticket.id"
-                class="border rounded-lg p-4 bg-white shadow-sm"
-                >
-                <div class="flex justify-between items-start">
-                    <div>
-                    <h3 class="font-semibold text-lg">
-                        {{ ticket.title }}
-                    </h3>
+                    v-for="ticket in props.tickets"
+                    :key="ticket.id"
+                    class="group bg-white border border-slate-200 rounded-xl p-5 transition-all duration-200 hover:shadow-md hover:border-slate-300"
+                    >
+                    <!-- Header -->
+                    <div class="flex justify-between items-start gap-4">
+                        <div>
+                        <h3 class="text-lg font-semibold text-slate-800 group-hover:text-indigo-600 transition">
+                            {{ ticket.title }}
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-1 line-clamp-2">
+                            {{ ticket.description }}
+                        </p>
+                        <small class="text-xs text-slate-400 mt-1">
+                            {{ ticket.user.name }}
+                        </small>
+                        </div>
 
-                    <p class="text-sm text-slate-500 mt-1">
-                        {{ ticket.description }}
-                    </p>
+                        <!-- Badges -->
+                        <div class="flex flex-col items-end gap-2">
+                        <!-- PRIORIDAD -->
+                        <span
+                            class="px-3 py-1 text-xs font-medium rounded-full flex items-center gap-2"
+                            :class="{
+                            'bg-green-100 text-green-700': ticket.priority === 'low',
+                            'bg-yellow-100 text-yellow-800': ticket.priority === 'medium',
+                            'bg-red-100 text-red-700': ticket.priority === 'high',
+                            }"
+                        >
+                            <span
+                            class="w-2 h-2 rounded-full"
+                            :class="{
+                                'bg-green-500': ticket.priority === 'low',
+                                'bg-yellow-500': ticket.priority === 'medium',
+                                'bg-red-500': ticket.priority === 'high',
+                            }"
+                            ></span>
+                            {{ ticket.priority }}
+                        </span>
+
+                        <!-- STATUS -->
+                        <span
+                            class="px-3 py-1 text-xs font-medium rounded-full"
+                            :class="{
+                            'bg-blue-100 text-blue-700': ticket.status === 'open',
+                            'bg-gray-200 text-gray-700': ticket.status === 'closed',
+                            }"
+                        >
+                            {{ ticket.status }}
+                        </span>
+                        </div>
                     </div>
 
-                    <div class="flex flex-col items-end gap-2">
-                    <span
-                        class="px-2 py-1 text-xs rounded-full"
-                        :class="{
-                        'bg-green-100 text-green-700': ticket.priority === 'low',
-                        'bg-yellow-100 text-yellow-700': ticket.priority === 'medium',
-                        'bg-red-100 text-red-700': ticket.priority === 'high',
-                        }">
-                        {{ ticket.priority }}
-                    </span>
+                    <!-- Imagen -->
+                    <div v-if="ticket.image_path" class="mt-4">
+                        <img
+                        :src="`/storage/${ticket.image_path}`"
+                        class="w-full max-h-48 object-cover rounded-lg border cursor-pointer hover:opacity-90 transition"
+                        @click="previewImage(ticket.image_path)"
+                        />
+                    </div>
 
-                    <span
-                        class="px-2 py-1 text-xs rounded-full"
-                        :class="{
-                        'bg-blue-100 text-blue-700': ticket.status === 'open',
-                        'bg-gray-200 text-gray-700': ticket.status === 'closed',
-                        }">
-                        {{ ticket.status }}
-                    </span>
+                    <!-- Footer -->
+                    <div class="mt-4 flex justify-between items-center text-xs text-slate-400">
+                        <div>
+                        {{ new Date(ticket.created_at).toLocaleDateString() }}
+                        </div>
+
+                        <div v-if="$page.props.auth.user.role === 'admin' && ticket.status === 'open'">
+                        <Button
+                            size="sm"
+                            class="bg-red-600 hover:bg-red-700 text-white shadow-sm transition"
+                            @click="confirmClose(ticket.id)">
+                            Cerrar Ticket
+                            </Button>
+                        </div>
                     </div>
                 </div>
-
-                <div v-if="ticket.image_path" class="mt-3">
-                    <img
-                    :src="`/storage/${ticket.image_path}`"
-                    class="w-32 h-20 object-cover rounded-md border"/>
-                </div>
-                </div>
-            </div>
+            </transition-group>
             </CardContent>
       </Card>
     </div>
@@ -204,6 +362,47 @@ const submit = () => {
         </form>
       </DialogContent>
     </Dialog>
+    <Dialog v-model:open="showConfirmDialog">
+        <DialogContent class="sm:max-w-md">
+            <DialogHeader>
+            <DialogTitle>
+                Confirmar cierre
+            </DialogTitle>
+            </DialogHeader>
+
+            <div class="py-4 text-sm text-slate-600">
+            ¿Estás seguro que deseas cerrar este ticket?
+            <br />
+            <span class="text-red-500 font-medium">
+                Esta acción no se puede deshacer.
+            </span>
+            </div>
+
+            <DialogFooter class="flex justify-end gap-3">
+            <Button
+                variant="outline"
+                @click="showConfirmDialog = false"
+            >
+                Cancelar
+            </Button>
+
+            <Button
+                class="bg-red-600 hover:bg-red-700 text-white"
+                @click="executeClose"
+            >
+                Confirmar cierre
+            </Button>
+            </DialogFooter>
+        </DialogContent>
+        </Dialog>
+        <Dialog v-model:open="showImagePreview">
+            <DialogContent class="max-w-3xl">
+                <img
+                :src="selectedImage"
+                class="w-full rounded-lg"
+                />
+            </DialogContent>
+        </Dialog>
     <transition
         enter-active-class="transition ease-out duration-300"
         enter-from-class="opacity-0 translate-y-2"
@@ -222,3 +421,19 @@ const submit = () => {
     </transition>
   </AuthenticatedLayout>
 </template>
+<style scoped>
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.25s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+</style>
