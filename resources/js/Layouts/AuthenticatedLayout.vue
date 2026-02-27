@@ -6,8 +6,11 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
+import AppToast from '@/components/ui/AppToast.vue'
+import { useToast } from '@/composables/useToast';
 
 const showingNavigationDropdown = ref(false);
+const { show, type, title, message } = useToast()
 </script>
 
 <template>
@@ -194,5 +197,11 @@ const showingNavigationDropdown = ref(false);
                 <slot />
             </main>
         </div>
+        <AppToast
+            :show="show"
+            :type="type"
+            :title="title"
+            :message="message"
+            />
     </div>
 </template>

@@ -10,9 +10,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
+import { useToast } from '@/composables/useToast'
 
 const page = usePage()
-
+const { toast } = useToast()
 const showToast = ref(false)
 
 const triggerToast = () => {
@@ -44,7 +45,19 @@ const submit = () => {
       showDialog.value = false
       form.reset()
       form.clearErrors()
-      triggerToast()
+
+      toast({
+        type: 'success',
+        title: 'Ticket creado',
+        message: 'La incidencia fue registrada correctamente.',
+      })
+    },
+    onError: () => {
+      toast({
+        type: 'error',
+        title: 'Error',
+        message: 'Revisa los campos del formulario.',
+      })
     }
   })
 }
