@@ -150,43 +150,42 @@ const previewImage = (path) => {
         </Button>
       </div>
     </template>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 py-4">
-
-        <!-- Total -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-            <p class="text-xs text-slate-500 uppercase">Total</p>
-            <p class="text-2xl font-bold text-slate-800 mt-1">
-            {{ totalCount }}
-            </p>
-        </div>
-
-        <!-- Abiertos -->
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 shadow-sm">
-            <p class="text-xs text-blue-600 uppercase">Abiertos</p>
-            <p class="text-2xl font-bold text-blue-700 mt-1">
-            {{ openCount }}
-            </p>
-        </div>
-
-        <!-- Cerrados -->
-        <div class="bg-gray-100 border border-gray-300 rounded-xl p-4 shadow-sm">
-            <p class="text-xs text-gray-600 uppercase">Cerrados</p>
-            <p class="text-2xl font-bold text-gray-800 mt-1">
-            {{ closedCount }}
-            </p>
-        </div>
-
-        <!-- Alta prioridad -->
-        <div class="bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
-            <p class="text-xs text-red-600 uppercase">Alta prioridad</p>
-            <p class="text-2xl font-bold text-red-700 mt-1">
-            {{ highPriorityCount }}
-            </p>
-        </div>
-
-    </div>
     <div class="py-10 max-w-6xl mx-auto px-4">
       <Card>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 m-6 p-4">
+            <!-- Total -->
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                <p class="text-xs text-slate-500 uppercase">Total</p>
+                <p class="text-2xl font-bold text-slate-800 mt-1">
+                {{ totalCount }}
+                </p>
+            </div>
+
+            <!-- Abiertos -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 shadow-sm">
+                <p class="text-xs text-blue-600 uppercase">Abiertos</p>
+                <p class="text-2xl font-bold text-blue-700 mt-1">
+                {{ openCount }}
+                </p>
+            </div>
+
+            <!-- Cerrados -->
+            <div class="bg-gray-100 border border-gray-300 rounded-xl p-4 shadow-sm">
+                <p class="text-xs text-gray-600 uppercase">Cerrados</p>
+                <p class="text-2xl font-bold text-gray-800 mt-1">
+                {{ closedCount }}
+                </p>
+            </div>
+
+            <!-- Alta prioridad -->
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
+                <p class="text-xs text-red-600 uppercase">Alta prioridad</p>
+                <p class="text-2xl font-bold text-red-700 mt-1">
+                {{ highPriorityCount }}
+                </p>
+            </div>
+
+        </div>
         <CardHeader>
           <CardTitle>Mis Tickets</CardTitle>
         </CardHeader>
