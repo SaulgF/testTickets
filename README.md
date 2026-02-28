@@ -39,21 +39,14 @@ moderna.
 
 # Instalación
 
-## 1️⃣ Clonar repositorio
-
-```bash
-git clone https://github.com/TU_USUARIO/TU_REPOSITORIO.git
-cd TU_REPOSITORIO
-```
-
-## 2️⃣ Instalar dependencias
+## Instalar dependencias
 
 ```bash
 composer install
 npm install
 ```
 
-## 3️⃣ Configurar entorno
+## Configurar entorno
 
 ```bash
 cp .env.example .env
@@ -62,19 +55,19 @@ php artisan key:generate
 
 Configurar base de datos en `.env`.
 
-## 4️⃣ Ejecutar migraciones y seeders
+## Ejecutar migraciones y seeders
 
 ```bash
 php artisan migrate --seed
 ```
 
-## 5️⃣ Crear enlace para imágenes
+## Crear enlace para imágenes
 
 ```bash
 php artisan storage:link
 ```
 
-## 6️⃣ Levantar servidores
+## Levantar servidores
 
 ```bash
 php artisan serve
@@ -106,7 +99,7 @@ Password: password
 
 ---
 
-# 🛡 Seguridad
+# Seguridad
 
 - Policies para autorización
 - Validación con Form Requests
@@ -115,7 +108,7 @@ Password: password
 
 ---
 
-# ✨ Funcionalidades
+# Funcionalidades
 
 - Login con roles
 - Dashboard con métricas
@@ -128,7 +121,7 @@ Password: password
 
 ---
 
-# 📌 Notas Técnicas
+# Notas Técnicas
 
 - Filtro persistente vía query params (?status=open)
 - Filtrado server-side
